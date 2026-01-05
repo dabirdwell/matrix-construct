@@ -3402,8 +3402,8 @@
                 if (s.glow !== undefined) { sys.glow = s.glow; document.getElementById('s-glow').value = s.glow; }
                 if (s.wind !== undefined) { sys.wind = s.wind; document.getElementById('s-wind').value = s.wind; }
                 if (s.fontSize !== undefined) { sys.fontSize = s.fontSize; document.getElementById('s-size').value = s.fontSize; }
-                if (s.revealMode) { sys.revealMode = s.revealMode; document.getElementById('sel-reveal').value = s.revealMode; }
-                if (s.revealDuration !== undefined) { sys.revealDuration = s.revealDuration; document.getElementById('s-reveal').value = s.revealDuration; }
+                if (s.revealMode) { sys.revealMode = s.revealMode; document.querySelectorAll('#reveal-grid .mode-btn').forEach(b => { b.classList.toggle('active', b.dataset.reveal === s.revealMode); }); }
+                if (s.revealDuration !== undefined) { sys.revealDuration = s.revealDuration; document.getElementById('s-rev').value = s.revealDuration; }
             }
             
             // Check for BPM in sequence
@@ -3537,7 +3537,7 @@
             if (cue.speed !== undefined) { sys.speed = cue.speed; document.getElementById('s-spd').value = cue.speed * 10; }
             if (cue.glow !== undefined) { sys.glow = cue.glow; document.getElementById('s-glow').value = cue.glow; }
             if (cue.wind !== undefined) { sys.wind = cue.wind; document.getElementById('s-wind').value = cue.wind; }
-            if (cue.revealMode) { sys.revealMode = cue.revealMode; document.getElementById('sel-reveal').value = cue.revealMode; }
+            if (cue.revealMode) { sys.revealMode = cue.revealMode; document.querySelectorAll('#reveal-grid .mode-btn').forEach(b => { b.classList.toggle('active', b.dataset.reveal === cue.revealMode); }); }
             
             // Display the cue
             document.getElementById('inp-text').value = cue.text;
@@ -3634,7 +3634,7 @@
                     const cueText = sequence.cues.map(c => c.text).join('\n');
                     document.getElementById('inp-cue').value = cueText;
                     sys.cues = cueText.split('\n').filter(c => c.trim());
-                    sys.cueIndex = 0;
+                    sys.cueIdx = 0;
                 }
                 
                 // Load for auto-play (keeps timing info)
