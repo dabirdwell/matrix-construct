@@ -24,7 +24,6 @@ Matrix Construct projects text through a configurable digital rain effect. What 
 
 **Zero dependencies. Single HTML file. Just open and go.**
 
-https://github.com/user-attachments/assets/demo-placeholder
 
 ## Use Cases
 
