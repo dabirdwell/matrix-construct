@@ -1,7 +1,7 @@
 # Matrix Construct
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-69-00ff00?style=flat-square&labelColor=000000" alt="Version 69">
+  <img src="https://img.shields.io/badge/version-70-00ff00?style=flat-square&labelColor=000000" alt="Version 70">
   <img src="https://img.shields.io/badge/PWA-ready-00aaff?style=flat-square&labelColor=000000" alt="PWA Ready">
   <img src="https://img.shields.io/badge/license-CC%20BY--NC%204.0-yellow?style=flat-square&labelColor=000000" alt="License">
   <img src="https://img.shields.io/badge/built%20with-human%20%2B%20AI-ff6600?style=flat-square&labelColor=000000" alt="Human + AI">
@@ -76,6 +76,18 @@ Matrix Construct projects text through a configurable digital rain effect. What 
 - Grid overlay (rule of thirds)
 - Theater mode (fullscreen, hide UI)
 
+### World Themes *(new in v70)*
+| Theme | The world becomes |
+|-------|-------------------|
+| **Classic** | Green rain on black — the one you know |
+| **Construct** | The white loading room the project is named for — dark rain on white |
+| **Amber** | Warm phosphor terminal |
+| **Ice** | Cold blue signal |
+| **Crimson** | Red-pill red |
+| **Ink** | Sepia ink on paper — a quieter machine |
+
+Every reveal mode, music mode, and easter egg follows the theme. Your choice persists.
+
 ### Media Integration
 - Image upload with reveal
 - Live webcam with **chroma key** (green screen removal)
@@ -99,6 +111,14 @@ Matrix Construct projects text through a configurable digital rain effect. What 
 - Triple-click the rain canvas
 - Shift + click the ? button three times
 - Hold all four arrow keys for 3 seconds...
+
+### New Whispers (v70)
+- Both pills work now. Type your choice.
+- A famous photograph — three words, no spaces
+- What the agent said, right before the dodge
+- The year the world was pulled over your eyes
+- Three letters of what remains after fire
+- The console learned two new names
 
 ### Unlockable Modes
 - **Neo Mode** — Rain parts around your cursor
@@ -145,7 +165,7 @@ open index.html  # or just double-click the file
 
 ## The Story
 
-This project evolved through 69 versions of human-AI collaboration. Each iteration added features, fixed bugs, and pushed the boundaries of what a "simple animation" could become.
+This project evolved through 70 versions of human-AI collaboration. Each iteration added features, fixed bugs, and pushed the boundaries of what a "simple animation" could become.
 
 The code was written through conversation — David describing what he wanted, Claude implementing it, back and forth until something genuinely useful emerged. It's a demonstration of what's possible when humans and AI create together as partners rather than tool and user.
 

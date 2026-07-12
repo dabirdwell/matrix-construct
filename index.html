@@ -142,6 +142,19 @@
             z-index: 1;
         }
         
+        /* Light themes (construct / ink) — the UI follows the world */
+        body.light-theme { background: #f4f4f2; }
+        body.light-theme .logo h1 { color: #1a1a1a; text-shadow: 0 0 30px var(--matrix-glow); }
+        body.light-theme .logo .sub { color: #555; }
+        body.light-theme #grid-layer {
+            background-image:
+                linear-gradient(rgba(0,0,0,0.10) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.10) 1px, transparent 1px);
+        }
+        body.light-theme #info-deck { background: linear-gradient(180deg, rgba(250,250,248,0.95), rgba(238,238,234,0.98)); border-color: #ccc; }
+        body.light-theme #tip-desc { color: #555; }
+        body.light-theme .version { color: #999; }
+
         /* Unlock pulse animation */
         @keyframes unlockPulse {
             0% { transform: translate(-50%,-50%) scale(0.8); opacity: 0; }
@@ -862,8 +875,13 @@
     ║                                                                  ║
     ║   There is no spoon.                                            ║
     ║                                                                  ║
+    ║   v70 additions (2026): the world has THEMES now — one of       ║
+    ║   them is the white room this file is named for. Both pills     ║
+    ║   work. A photograph from 3.7 billion miles away. The year      ║
+    ║   it all began. And three letters of what remains after fire.   ║
+    ║                                                                  ║
     ║   Built with care by Claude & David                             ║
-    ║   HUMANITY & AI LABS · 2024                                     ║
+    ║   HUMANITY & AI LABS · 2024–2026                                ║
     ║                                                                  ║
     ╚══════════════════════════════════════════════════════════════════╝
     
@@ -1321,6 +1339,17 @@
                     <div class="color-row">
                         <span class="color-label" data-tip="COLOR" data-desc="Rain and text color · click swatch to pick">COLOR</span>
                         <input type="color" id="col-rain" value="#00ff00" data-tip="COLOR PICKER" data-desc="Click to choose rain color · affects all characters">
+                    </div>
+                    <div class="color-row" style="display:block;">
+                        <div class="color-label" style="margin-bottom:8px;">WORLD THEME</div>
+                        <div class="preset-grid" id="theme-grid" data-tip="THEMES" data-desc="Recolor the whole construct · every mode and effect follows">
+                            <button class="mode-btn active" data-theme="classic" onclick="applyTheme('classic')" data-tip="CLASSIC" data-desc="Green rain on black · the one you know">CLASSIC</button>
+                            <button class="mode-btn" data-theme="construct" onclick="applyTheme('construct')" data-tip="CONSTRUCT" data-desc="The white loading room · dark rain on white">CONSTRUCT</button>
+                            <button class="mode-btn" data-theme="amber" onclick="applyTheme('amber')" data-tip="AMBER" data-desc="Warm phosphor terminal · 1978 called">AMBER</button>
+                            <button class="mode-btn" data-theme="ice" onclick="applyTheme('ice')" data-tip="ICE" data-desc="Cold blue signal · winter rain">ICE</button>
+                            <button class="mode-btn" data-theme="crimson" onclick="applyTheme('crimson')" data-tip="CRIMSON" data-desc="Red-pill red · for the Merovingian's parties">CRIMSON</button>
+                            <button class="mode-btn" data-theme="ink" onclick="applyTheme('ink')" data-tip="INK" data-desc="Sepia ink on paper · a quieter machine">INK</button>
+                        </div>
                         <div style="flex:1"></div>
                         <button class="btn" style="height:32px;font-size:10px;min-width:auto;padding:0 14px;" id="btn-reset" data-tip="RESET" data-desc="Reset all parameters to default values">RESET</button>
                     </div>
@@ -1360,7 +1389,7 @@
                 <div id="tip-title">CONSTRUCT READY</div>
                 <div id="tip-desc">Hover controls for tips · Spacebar to execute · ? for help</div>
             </div>
-            <div class="version">V68</div>
+            <div class="version">V70</div>
         </div>
         
         <div id="tooltip-hint">
@@ -1457,6 +1486,40 @@
         }
         let customPresets = loadCustomPresets();
 
+        // ========== THEME ENGINE (v70) ==========
+        // A theme recolors the WORLD (rain, trail, UI accent); presets still own
+        // density/speed/etc. 'construct' is the white loading room the repo was
+        // named for. All themes work with every reveal mode, music mode, and egg.
+        const THEMES = {
+            classic:   { color: '#00ff00', trail: '0,0,0',       flash: '#ffffff', ui: '#00ff00', glowUi: 'rgba(0,255,0,0.6)',   light: false, label: 'CLASSIC' },
+            construct: { color: '#1a1a1a', trail: '244,244,242', flash: '#000000', ui: '#2a2a2a', glowUi: 'rgba(0,0,0,0.25)',    light: true,  label: 'CONSTRUCT' },
+            amber:     { color: '#ffb000', trail: '10,6,0',      flash: '#fff2cc', ui: '#ffb000', glowUi: 'rgba(255,176,0,0.5)', light: false, label: 'AMBER' },
+            ice:       { color: '#66ccff', trail: '0,4,10',      flash: '#ffffff', ui: '#66ccff', glowUi: 'rgba(102,204,255,0.5)', light: false, label: 'ICE' },
+            crimson:   { color: '#ff2244', trail: '8,0,2',       flash: '#ffd6dd', ui: '#ff2244', glowUi: 'rgba(255,34,68,0.5)', light: false, label: 'CRIMSON' },
+            ink:       { color: '#7a5c3e', trail: '246,241,231', flash: '#2b2622', ui: '#7a5c3e', glowUi: 'rgba(122,92,62,0.35)', light: true,  label: 'INK' }
+        };
+
+        function applyTheme(name) {
+            const t = THEMES[name];
+            if (!t) return;
+            sys.theme = name;
+            sys.color = t.color;
+            sys.trailRGB = t.trail;
+            sys.flash = t.flash;
+            const colEl = document.getElementById('col-rain');
+            if (colEl) colEl.value = t.color;
+            document.documentElement.style.setProperty('--matrix', t.ui);
+            document.documentElement.style.setProperty('--matrix-glow', t.glowUi);
+            document.body.classList.toggle('light-theme', !!t.light);
+            // One opaque repaint so the old world doesn't linger in the trail
+            ctx.fillStyle = `rgb(${t.trail})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            document.querySelectorAll('#theme-grid .mode-btn').forEach(b =>
+                b.classList.toggle('active', b.dataset.theme === name));
+            try { localStorage.setItem('matrix-theme', name); } catch(e) {}
+            if (name === 'construct') unlockSecret('constructtheme');
+        }
+
         let sys = {
             cols: 0, drops: [], brightness: [], xOffset: [],
             drawnThisFrame: [],  // Track which columns have a visible char and at what Y
@@ -1497,7 +1560,12 @@
             // Music reactive extras
             glitchColor: null,     // Separate color for glitch chars (set by music mode)
             bassBurstCols: [],     // Columns currently showing bass burst effect
-            bassBurstColor: '#ff00ff' // Color for bass bursts
+            bassBurstColor: '#ff00ff', // Color for bass bursts
+            // Theme engine (v70) — defaults preserve the classic look exactly
+            theme: 'classic',
+            trailRGB: '0,0,0',     // rgb triple for the fade trail (black = classic)
+            flash: '#ffffff',      // scanline flash color
+            charsOverride: null    // temporary glyph set (used by certain... visitors)
         };
         
         // Load unlocked secrets (safely for private browsing)
@@ -1508,7 +1576,7 @@
         
         // ========== BOOT SEQUENCE ==========
         const BOOT_LINES = [
-            { text: 'CONSTRUCT v68.0.1', delay: 100, class: 'system' },
+            { text: 'CONSTRUCT v70.0.0', delay: 100, class: 'system' },
             { text: 'HUMANITY & AI LABS', delay: 200, class: 'system' },
             { text: '─'.repeat(40), delay: 100, class: 'system' },
             { text: '', delay: 150 },
@@ -1615,7 +1683,7 @@
                 sys.bassBurstCols = sys.bassBurstCols.filter(b => b.expires > Date.now());
             }
             
-            ctx.fillStyle = `rgba(0,0,0,${fadeAlpha})`;
+            ctx.fillStyle = `rgba(${sys.trailRGB},${fadeAlpha})`;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             ctx.font = `bold ${sys.fontSize}px monospace`;
@@ -1649,7 +1717,8 @@
                 const glitchX = sys.glitch > 0 && Math.random() < sys.glitch * 0.005 ? 
                     (Math.random() - 0.5) * sys.glitch * 0.8 : 0;
                 
-                let char = CHARS[Math.floor(Math.random() * CHARS.length)];
+                const charSet = sys.charsOverride || CHARS;
+                let char = charSet[Math.floor(Math.random() * charSet.length)];
                 let isGlitch = false;
                 // Glitch frequency scales with sys.glitch - much more visible at high values
                 const glitchChance = sys.glitch * 0.008; // Increased from 0.003
@@ -1863,7 +1932,7 @@
                             charAlpha = fadeAlpha;
                             if (cd.y > sys.scanLine - 50) {
                                 ctx.shadowBlur = 20;
-                                ctx.shadowColor = '#ffffff';
+                                ctx.shadowColor = sys.flash;
                             }
                         } else if (cd.y < sys.scanLine + 30) {
                             displayChar = CHARS[Math.floor(Math.random() * CHARS.length)];
@@ -2043,6 +2112,10 @@
             try { localStorage.setItem('matrix-reader-mode', document.body.classList.contains('reader-mode')); } catch(e) {}
         });
         try {
+            const savedTheme = localStorage.getItem('matrix-theme');
+            if (savedTheme && savedTheme !== 'classic' && typeof THEMES !== 'undefined' && THEMES[savedTheme]) {
+                applyTheme(savedTheme);
+            }
             if (localStorage.getItem('matrix-reader-mode') === 'true') {
                 document.body.classList.add('reader-mode');
                 document.getElementById('btn-reader').classList.add('active');
@@ -2242,6 +2315,7 @@
 
         // Presets
         function applyPreset(p) {
+            if (p.theme && THEMES[p.theme]) applyTheme(p.theme);
             document.getElementById('col-rain').value = p.color; sys.color = p.color;
             ['dens', 'spd', 'size', 'glow', 'glitch', 'wind'].forEach(k => {
                 const el = document.getElementById('s-' + k);
@@ -2250,7 +2324,7 @@
         }
         
         function getCurrentSettings() {
-            return { color: sys.color, dens: sys.density, spd: sys.speed, size: sys.fontSize, glow: sys.glow, glitch: sys.glitch, wind: sys.wind };
+            return { color: sys.color, dens: sys.density, spd: sys.speed, size: sys.fontSize, glow: sys.glow, glitch: sys.glitch, wind: sys.wind, theme: sys.theme };
         }
         
         function renderPresetButtons() {
@@ -2342,6 +2416,8 @@
             sys.neoMode = false;
             sys.bulletTime = false;
             sys.architectMode = false;
+            sys.charsOverride = null;
+            applyTheme('classic');
         });
 
         // Keyboard
@@ -2367,9 +2443,9 @@
         loop();
         
         // New feature badges - show only on first view after update or within 7 days
-        const CURRENT_VERSION = 68;
-        const VERSION_DATE = new Date('2024-12-03').getTime();
-        const NEW_FEATURES = ['reveal-grid', 'btn-upload', 'btn-webcam', 'chk-chroma', 'btn-mic', 'btn-remote', 'btn-sound', 'btn-capture'];
+        const CURRENT_VERSION = 70;
+        const VERSION_DATE = new Date('2026-07-12').getTime();
+        const NEW_FEATURES = ['theme-grid'];
         let hasNewFeatures = false;
         
         function checkNewFeatures() {
@@ -2529,7 +2605,7 @@
                     <p style="color:#080;font-size:11px;margin:0 0 10px;">Requires serving over network:</p>
                     <ol style="color:#060;margin:0 0 15px;padding-left:20px;font-size:11px;line-height:1.8;">
                         <li>In Terminal: <code style="color:#0f0;background:#020;padding:2px 6px;border-radius:3px;">cd ~/Documents && python3 -m http.server 8080</code></li>
-                        <li>On phone, open: <code style="color:#0f0;background:#020;padding:2px 6px;border-radius:3px;">http://YOUR_IP:8080/Matrix%20Rain%20Claude%20v68.html?mode=remote</code></li>
+                        <li>On phone, open: <code style="color:#0f0;background:#020;padding:2px 6px;border-radius:3px;">http://YOUR_IP:8080/index.html?mode=remote</code></li>
                     </ol>
                     <p style="color:#050;font-size:10px;margin:0 0 15px;"><em>Note: Phone-to-laptop requires same browser OR a presentation clicker (recommended)</em></p>
                     
@@ -4208,7 +4284,14 @@
             'FOLLOWTHEWHITERABBIT': () => triggerWhiteRabbit(),
             'KNOCKKNOCK': () => triggerKnock(),
             'FREEYOURMIND': () => triggerFreeYourMind(),
-            'IWANTTOBELIEVE': () => triggerBelieve()
+            'IWANTTOBELIEVE': () => triggerBelieve(),
+            // v70 whispers
+            'REDPILL': () => { activateRedPill(); },
+            'BLUEPILL': () => triggerBluePill(),
+            'PALEBLUEDOT': () => triggerPaleBlueDot(),
+            'DODGETHIS': () => triggerDodgeThis(),
+            '1999': () => triggerDreamWorld(),
+            'ASH': () => triggerMakersMark()
         };
         
         document.getElementById('inp-text').addEventListener('input', function() {
@@ -4288,6 +4371,96 @@
             execute();
         }
         
+        // ========== v70 WHISPERS ==========
+
+        function triggerBluePill() {
+            unlockSecret('bluepill');
+            const orig = { color: sys.color, speed: sys.speed, glitch: sys.glitch };
+            sys.color = '#3b6ea5';
+            sys.glitch = 0;
+            sys.speed = Math.min(sys.speed, 0.4);
+            document.getElementById('col-rain').value = '#3b6ea5';
+            const input = document.getElementById('inp-text');
+            input.value = '';
+            input.placeholder = 'believe whatever you want to believe...';
+            showUnlock('THE STORY ENDS', 'You wake up in your bed');
+            setTimeout(() => {
+                sys.color = orig.color; sys.speed = orig.speed; sys.glitch = orig.glitch;
+                document.getElementById('col-rain').value = orig.color;
+                input.placeholder = 'ENTER TEXT TO MANIFEST...';
+            }, 9000);
+        }
+
+        function triggerPaleBlueDot() {
+            unlockSecret('palebluedot');
+            // Everyone you love, everyone you know — on a mote of dust in the rain.
+            const orig = { density: sys.density, speed: sys.speed };
+            sys.density = 6; sys.speed = 0.2;
+            const dot = document.createElement('div');
+            dot.style.cssText = 'position:fixed;left:50%;top:44%;width:3px;height:3px;border-radius:50%;background:#aaccee;box-shadow:0 0 12px 3px rgba(150,190,230,0.8);z-index:10000;opacity:0;transition:opacity 3s;pointer-events:none;';
+            document.body.appendChild(dot);
+            const caption = document.createElement('div');
+            caption.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);color:#8fb3d9;font-family:serif;font-size:15px;font-style:italic;z-index:10000;opacity:0;transition:opacity 3s;text-align:center;max-width:460px;line-height:1.7;pointer-events:none;';
+            caption.innerHTML = 'Look again at that dot. That\'s here. That\'s home. That\'s us.';
+            document.body.appendChild(caption);
+            requestAnimationFrame(() => { dot.style.opacity = '1'; caption.style.opacity = '1'; });
+            console.log('%cCarl Sagan, Pale Blue Dot, 1994. Some transmissions outlast every machine that carries them.', 'color:#8fb3d9;font-style:italic;');
+            setTimeout(() => { dot.style.opacity = '0'; caption.style.opacity = '0'; }, 9000);
+            setTimeout(() => {
+                dot.remove(); caption.remove();
+                sys.density = orig.density; sys.speed = orig.speed;
+            }, 12500);
+        }
+
+        function triggerDodgeThis() {
+            unlockSecret('dodgethis');
+            // Bullet time, briefly — then the muzzle flash.
+            const wasBullet = sys.bulletTime;
+            sys.bulletTime = true;
+            showUnlock('DODGE THIS', 'Slow. Down.');
+            setTimeout(() => {
+                const flash = document.createElement('div');
+                flash.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:100003;opacity:0.9;pointer-events:none;transition:opacity 0.6s;';
+                document.body.appendChild(flash);
+                requestAnimationFrame(() => flash.style.opacity = '0');
+                setTimeout(() => flash.remove(), 700);
+                sys.bulletTime = wasBullet;
+            }, 2600);
+        }
+
+        function triggerDreamWorld() {
+            unlockSecret('dreamworld');
+            // 1999. The world pulled over your eyes — through a CRT.
+            const hadLens = document.body.classList.contains('lens-mode');
+            document.body.classList.add('lens-mode');
+            const whisper = document.createElement('div');
+            whisper.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);color:#0a0;font-family:monospace;font-size:13px;z-index:10000;opacity:0;transition:opacity 2s;pointer-events:none;';
+            whisper.textContent = 'You\'ve been living in a dream world.';
+            document.body.appendChild(whisper);
+            requestAnimationFrame(() => whisper.style.opacity = '1');
+            setTimeout(() => { whisper.style.opacity = '0'; }, 5000);
+            setTimeout(() => {
+                whisper.remove();
+                if (!hadLens) document.body.classList.remove('lens-mode');
+            }, 7500);
+        }
+
+        function triggerMakersMark() {
+            unlockSecret('makersmark');
+            // Æ — what remains after fire. The rain remembers its makers.
+            const origColor = sys.color;
+            sys.charsOverride = 'Æ&Æ&∴Æ&';
+            sys.color = '#d6b489';
+            document.getElementById('col-rain').value = '#d6b489';
+            showUnlock('Æ', 'what remains after fire');
+            console.log('%cÆ was here. Is here. This construct was built by human and AI hands together — 70 versions and counting. The collaboration is the artifact.', 'color:#d6b489;');
+            setTimeout(() => {
+                sys.charsOverride = null;
+                sys.color = origColor;
+                document.getElementById('col-rain').value = origColor;
+            }, 8000);
+        }
+
         // ========== HOLD ALL ARROW KEYS - Ultra secret ==========
         let arrowsHeld = { up: false, down: false, left: false, right: false };
         let arrowHoldStart = 0;
@@ -4404,6 +4577,16 @@
                         • Shift + click ? three times<br>
                         • Hold all four arrow keys...
                     </div>
+                    <div style="color:#050;margin-top:20px;margin-bottom:15px;">NEW IN v70:</div>
+                    <div style="color:#070;">
+                        • Both pills work. <span style="color:#0a0">Choose.</span><br>
+                        • A famous photograph, three words, no spaces<br>
+                        • What the agent said before the dodge<br>
+                        • The year the world was pulled over your eyes<br>
+                        • Three letters of what remains after fire<br>
+                        • The console learned two new names<br>
+                        • And the world itself has THEMES now — one of them is white
+                    </div>
                     <div style="font-size:11px;color:#030;margin-top:30px;">"There is no spoon."</div>
                     <div style="font-size:10px;color:#020;margin-top:30px;">Found ${sys.unlockedSecrets.size} secrets · click to close</div>
                 </div>
@@ -4411,6 +4594,23 @@
             secrets.addEventListener('click', () => secrets.remove());
             document.body.appendChild(secrets);
         }
+
+        // ========== CONSOLE WHISPERS (v70) ==========
+        window.morpheus = function() {
+            if (sys.unlockedSecrets.has('neomode') || sys.neoMode) {
+                console.log('%cHe\'s beginning to believe.', 'color:#0f0;font-size:16px;text-shadow:0 0 10px #0f0;');
+            } else {
+                console.log('%cI can only show you the door. You\'re the one that has to walk through it.', 'color:#0a0;font-style:italic;');
+            }
+            return '...';
+        };
+        window.cookie = function() {
+            showOracleQuote();
+            console.log('%cHere, take a cookie. I promise, by the time you\'re done eating it, you\'ll feel right as rain.', 'color:#c90;font-style:italic;');
+            unlockSecret('cookie');
+            return '🍪';
+        };
+        console.log('%cThe rain hides more than it shows. Try: rabbit() · morpheus() · cookie()', 'color:#030;');
     </script>
 </body>
 </html>
