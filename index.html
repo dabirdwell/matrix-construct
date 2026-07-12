@@ -936,6 +936,11 @@
                     <div class="help-item" onclick="locate('chk-chroma')"><h4>BACKGROUND REMOVAL</h4><p>Chroma key to remove solid color backgrounds</p></div>
                 </div>
                 
+                <h2>WORLD THEMES</h2>
+                <div class="help-grid">
+                    <div class="help-item" onclick="locate('theme-grid')"><h4>SIX WORLDS</h4><p>Recolor the entire construct — rain, trail, and UI. One of them is white.</p></div>
+                </div>
+
                 <h2>PROJECTION CONTROLS</h2>
                 <div class="help-grid">
                     <div class="help-item" onclick="locate('inp-text')"><h4>TEXT INPUT</h4><p>Primary message to project</p></div>
@@ -1511,6 +1516,11 @@
             document.documentElement.style.setProperty('--matrix', t.ui);
             document.documentElement.style.setProperty('--matrix-glow', t.glowUi);
             document.body.classList.toggle('light-theme', !!t.light);
+            // If music-reactive is mid-session, keep its restore target current so
+            // stopping the music lands on this theme's color, not a stale one.
+            // (try/catch: at load-time restore this name is in its temporal dead
+            // zone — music can't be running then, so skipping is correct.)
+            try { if (originalColor !== null) originalColor = t.color; } catch(e) {}
             // One opaque repaint so the old world doesn't linger in the trail
             ctx.fillStyle = `rgb(${t.trail})`;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -4375,19 +4385,24 @@
 
         function triggerBluePill() {
             unlockSecret('bluepill');
+            // The blue pill ends the red-pill story too, if one is running.
+            if (document.body.style.filter.includes('hue-rotate')) deactivateRedPill();
             const orig = { color: sys.color, speed: sys.speed, glitch: sys.glitch };
+            const setSpeed = Math.min(orig.speed, 0.4);
             sys.color = '#3b6ea5';
             sys.glitch = 0;
-            sys.speed = Math.min(sys.speed, 0.4);
+            sys.speed = setSpeed;
             document.getElementById('col-rain').value = '#3b6ea5';
             const input = document.getElementById('inp-text');
             input.value = '';
             input.placeholder = 'believe whatever you want to believe...';
             showUnlock('THE STORY ENDS', 'You wake up in your bed');
             setTimeout(() => {
-                sys.color = orig.color; sys.speed = orig.speed; sys.glitch = orig.glitch;
-                document.getElementById('col-rain').value = orig.color;
-                input.placeholder = 'ENTER TEXT TO MANIFEST...';
+                // Restore only what we set and the operator hasn't since changed.
+                if (sys.color === '#3b6ea5') { sys.color = orig.color; document.getElementById('col-rain').value = orig.color; }
+                if (sys.speed === setSpeed) sys.speed = orig.speed;
+                if (sys.glitch === 0) sys.glitch = orig.glitch;
+                input.placeholder = 'ENTER MESSAGE...';
             }, 9000);
         }
 
@@ -4408,7 +4423,9 @@
             setTimeout(() => { dot.style.opacity = '0'; caption.style.opacity = '0'; }, 9000);
             setTimeout(() => {
                 dot.remove(); caption.remove();
-                sys.density = orig.density; sys.speed = orig.speed;
+                // Restore only if the operator hasn't moved the sliders meanwhile.
+                if (sys.density === 6) sys.density = orig.density;
+                if (sys.speed === 0.2) sys.speed = orig.speed;
             }, 12500);
         }
 
@@ -4441,7 +4458,11 @@
             setTimeout(() => { whisper.style.opacity = '0'; }, 5000);
             setTimeout(() => {
                 whisper.remove();
-                if (!hadLens) document.body.classList.remove('lens-mode');
+                // Respect a manual lens toggle made during the effect.
+                const lensBtn = document.getElementById('btn-lens');
+                if (!hadLens && !(lensBtn && lensBtn.classList.contains('active'))) {
+                    document.body.classList.remove('lens-mode');
+                }
             }, 7500);
         }
 
@@ -4455,9 +4476,11 @@
             showUnlock('Æ', 'what remains after fire');
             console.log('%cÆ was here. Is here. This construct was built by human and AI hands together — 70 versions and counting. The collaboration is the artifact.', 'color:#d6b489;');
             setTimeout(() => {
-                sys.charsOverride = null;
-                sys.color = origColor;
-                document.getElementById('col-rain').value = origColor;
+                if (sys.charsOverride === 'Æ&Æ&∴Æ&') sys.charsOverride = null;
+                if (sys.color === '#d6b489') {
+                    sys.color = origColor;
+                    document.getElementById('col-rain').value = origColor;
+                }
             }, 8000);
         }
 
